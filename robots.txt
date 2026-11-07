@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /versions/
+Disallow: /tools/
+
+Sitemap: https://david-ameline.daith42.fr/sitemap.xml

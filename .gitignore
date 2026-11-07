@@ -1,0 +1,18 @@
+# Anciennes versions : elles contiennent le numéro de téléphone en clair
+versions/
+
+# Réglages locaux de Claude Code
+.claude/
+
+# Paquet généré par tools/deploy.sh
+build/
+
+# Secrets (jeton du tunnel Cloudflare) : uniquement sur le serveur
+.env
+*.env
+!.env.example
+
+# Fichiers système
+Thumbs.db
+desktop.ini
+.DS_Store
