@@ -1,0 +1,32 @@
+name: Vérification
+
+on:
+  push:
+    branches: [main, prod]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verifier:
+    name: verifier
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fichiers, référencement et sécurité
+        run: python3 tools/check-site.py
+
+      - name: HTML (validateur du W3C)
+        run: >
+          docker run --rm -v "$PWD:/site:ro" ghcr.io/validator/validator:latest
+          vnu --errors-only /site/index.html /site/404.html
+
+      - name: Config nginx
+        run: >
+          docker run --rm --network none --read-only --tmpfs /tmp
+          -v "$PWD/deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro"
+          -v "$PWD:/usr/share/nginx/html:ro"
+          nginxinc/nginx-unprivileged:1.30-alpine nginx -t

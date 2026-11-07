@@ -1,178 +1,273 @@
-# Mise en ligne du portfolio sur asushome1
+# Mise en ligne automatique du portfolio
 
-> Site statique servi par nginx (sans droits root, conteneur en lecture seule), rendu public par
-> **son propre Cloudflare Tunnel** : aucun port ouvert sur internet ni sur le réseau local, HTTPS
-> et cache fournis par Cloudflare. Même principe que Zelda Collection, dans une stack séparée.
-> Testé en local le 7 novembre 2026 : image construite, en-têtes de sécurité, 404, compression,
-> fichiers non publiés bien refusés.
+Adresse : **https://david-ameline.daith42.fr/** (`daith42.fr` et `www.daith42.fr` y redirigent).
 
-Adresse : **https://david-ameline.daith42.fr/**
+## Comment ça marche
 
-Les commandes `bash` se lancent depuis Git Bash sur le PC Windows, à la racine du dossier
-`portfolio`. Celles qui commencent par `ssh` ou qui sont marquées « sur le serveur » se lancent
-sur `asushome1` (invite `daith@asushome1:~$`).
+```
+ PC ── git push ──► GitHub : branche main ──► vérification automatique (GitHub Actions)
+                                │
+                     git push origin main:prod   (refusé si la vérification n'est pas verte)
+                                ▼
+                    GitHub : branche prod
+                                ▲
+                                │ toutes les 2 min, le SERVEUR regarde la branche (lecture seule)
+ asushome1 ── portfolio-sync.timer ── portfolio-sync.sh ──► ~/stacks/portfolio/site + nginx/
+                                                              │
+                     conteneur « portfolio » (nginx) ◄────────┘  ◄── tunnel asushome1 ◄── visiteurs
+```
 
-## 1. Ce qu'il te faut
+- **`main`** : ta branche de travail. **`prod`** : ce qui est en ligne.
+- **Le serveur va chercher** la branche `prod` : rien n'entre sur ton réseau, et GitHub n'a aucun
+  accès au serveur ni aucun secret. Le dépôt est public, donc aucun identifiant n'est nécessaire.
+- **Seuls les 13 fichiers du site et `deploy/nginx.conf` viennent du dépôt.** `compose.yaml`, le
+  script de synchro et les unités systemd sont installés à la main et ne sont jamais modifiés
+  automatiquement. Même si ton compte GitHub était piraté, on ne pourrait changer que le contenu
+  du site, jamais prendre la main sur le serveur.
+- Le script refuse les liens symboliques (qui pourraient publier un fichier privé du serveur) et
+  vérifie la config nginx avant de l'appliquer : en cas de problème, **l'ancien site reste en
+  ligne**.
 
-- **Tailscale connecté** sur le PC, avec le compte `daith420@`, et `ssh daith@asushome1` qui
-  fonctionne.
-- Le domaine **`daith42.fr` géré par Cloudflare** (onglet **DNS** du domaine visible dans le
-  tableau de bord Cloudflare). Sinon : **Add a domain**, puis remplace les « nameservers » chez
-  ton registrar par ceux que Cloudflare affiche, et attends qu'il passe à **Active**.
-- Le compte **Cloudflare Zero Trust** déjà ouvert (fait pour Zelda Collection ; sinon, voir le
-  guide de Zelda Collection, étape 5.1).
+Testé le 7 novembre 2026 dans un bac à sable Docker : premier déploiement, mise à jour du contenu,
+changement de config nginx, lien symbolique malveillant refusé, config invalide refusée,
+redirections et 404.
 
-## 2. Créer le tunnel « portfolio »
+---
 
-Un tunnel à part, pour que le portfolio et Zelda Collection restent indépendants.
+## Installation (une seule fois)
 
-1. https://one.dash.cloudflare.com → **Networks** → **Tunnels** → **Create a tunnel**.
-2. **Cloudflared** → **Next**.
-3. Nom : `portfolio` → **Save tunnel**.
-4. À l'écran « Install and run a connector », choisis **Docker**. Dans la commande affichée,
-   copie seulement la longue suite de caractères après `--token`. Garde la page ouverte.
-
-## 3. Première installation sur le serveur
-
-1. Prépare le dossier et le fichier du jeton :
-
-   ```bash
-   ssh daith@asushome1
-   ```
-
-   Puis, sur le serveur :
-
-   ```bash
-   mkdir -p ~/stacks/portfolio && cd ~/stacks/portfolio && nano .env
-   ```
-
-2. Dans l'éditeur, écris une seule ligne, en collant le jeton copié à l'étape 2 :
-
-   ```
-   TUNNEL_TOKEN=le-jeton-copié
-   ```
-
-   Enregistre avec **Ctrl+O**, **Entrée**, puis quitte avec **Ctrl+X**.
-
-3. Protège le fichier, puis reviens sur le PC :
-
-   ```bash
-   chmod 600 .env && exit
-   ```
-
-Le jeton ne vit que dans ce `.env` sur le serveur. Ne l'envoie à personne, et pas dans le chat.
-
-## 4. Envoyer le site
+### 1. Envoyer les fichiers sur GitHub
 
 Sur le PC, à la racine du dossier `portfolio` :
 
 ```bash
-bash tools/deploy.sh
+git add -A
 ```
 
-Le script envoie seulement les 13 fichiers du site et la configuration du serveur (jamais
-`versions/`, `tools/` ni le `.env`), construit l'image et démarre les deux conteneurs. Il affiche
-à la fin `portfolio-web` et `portfolio-tunnel` en **Up**.
+```bash
+git status
+```
 
-Vérifie depuis le PC (Tailscale connecté) : http://asushome1:3090. Le site n'est pas encore
-public.
+Tu dois voir : `.github/workflows/verifier.yml`, `tools/check-site.py`, les trois fichiers
+`deploy/portfolio-sync.*`, `deploy/compose.yaml` et `deploy/nginx.conf` modifiés, et
+`deploy/Dockerfile`, `deploy/.env.example`, `tools/deploy.sh` supprimés.
 
-## 5. Ouvrir le site sur internet
+```bash
+git commit -m "Déploiement automatique depuis la branche prod"
+```
 
-De retour sur la page Cloudflare du tunnel : le connecteur est passé à **Connected**. Clique
-**Next**, puis onglet **Public Hostname** :
+```bash
+git push
+```
+
+Sur https://github.com/Daith-42/portfolio/actions, la vérification **Vérification** se lance.
+Attends qu'elle soit verte (environ une minute), puis crée la branche `prod` :
+
+```bash
+git push origin main:prod
+```
+
+### 2. Protéger la branche prod sur GitHub
+
+https://github.com/Daith-42/portfolio/settings/rules → **New ruleset** → **New branch ruleset** :
+
+- **Ruleset name** : `prod`
+- **Enforcement status** : **Active**
+- **Target branches** → **Add target** → **Include by pattern** → `prod`
+- Coche **Restrict deletions** et **Block force pushes**
+- Coche **Require status checks to pass** → **Add checks** → tape `verifier` et sélectionne-le
+- **Create**
+
+Désormais, `git push origin main:prod` est refusé tant que la vérification de ce commit n'est pas
+verte.
+
+### 3. Ajouter l'adresse dans Cloudflare
+
+Zero Trust → **Networks** → **Tunnels** → `asushome1` → **Routes** → **Add route** →
+**Published application** :
 
 - **Subdomain** : `david-ameline`
 - **Domain** : `daith42.fr`
-- **Service** : type **HTTP**, URL `web:8080`
+- **Service URL** : `http://portfolio:8080`
 
-**Save tunnel**. Cloudflare crée l'enregistrement DNS tout seul. Ouvre
-https://david-ameline.daith42.fr/ : c'est en ligne.
+Garde les routes `daith42.fr` et `www.daith42.fr` : elles redirigent maintenant vers
+`david-ameline.daith42.fr`.
 
-Dans le tableau de bord du domaine `daith42.fr` → **SSL/TLS** → **Edge Certificates**, vérifie que
-**Always Use HTTPS** est activé.
-
-## 6. Vérifications
-
-- Ouvre le site **sur ton téléphone**, en 4G/5G (pas en Wi-Fi maison) : menu, bouton
-  « Afficher le numéro », liens des projets.
-- Une adresse inventée, par exemple https://david-ameline.daith42.fr/test, affiche la page
-  « Page introuvable ».
-- **Aperçu de partage** : colle l'adresse sur https://www.linkedin.com/post-inspector/ ; l'image
-  et le titre doivent apparaître.
-- **En-têtes de sécurité** : https://securityheaders.com/?q=david-ameline.daith42.fr (note
-  attendue : A ou A+).
-- **Uptime Kuma** (http://asushome1:3001) → **Add New Monitor** → type **HTTP(s)**, URL
-  `http://100.74.216.35:3090`, nom `Portfolio`. Ajoute aussi une sonde vers
-  `https://david-ameline.daith42.fr/` pour surveiller le chemin complet par Cloudflare.
-- Après le prochain redémarrage du serveur, `docker ps` doit montrer les deux conteneurs
-  relancés seuls.
-
-## 7. Google
-
-1. https://search.google.com/search-console → **Ajouter une propriété** → **Domaine** →
-   `daith42.fr`. Google donne un enregistrement **TXT** : ajoute-le dans Cloudflare (**DNS** →
-   **Records** → **Add record**, type TXT, nom `@`), puis **Valider**.
-2. Dans la propriété → **Sitemaps** → `https://david-ameline.daith42.fr/sitemap.xml` →
-   **Envoyer**.
-3. **Inspection de l'URL** → l'adresse du site → **Demander l'indexation**.
-
-Compte quelques jours avant que le site apparaisse dans les résultats pour « David Ameline ».
-
-## 8. Mettre à jour le site
-
-Après une modification sur le PC :
+### 4. Installer la synchro sur le serveur
 
 ```bash
-bash tools/deploy.sh
+ssh daith@asushome1
 ```
 
-Le site est remplacé en quelques secondes. Si tu as modifié le contenu, change aussi la date
-`<lastmod>` de `sitemap.xml` et `dateModified` dans `index.html`.
-
-Pour vérifier le paquet sans rien envoyer :
+Sur le serveur, récupère la branche `prod` :
 
 ```bash
-bash tools/deploy.sh --local
+cd ~/stacks/portfolio && git clone --quiet --depth 1 --branch prod --single-branch https://github.com/Daith-42/portfolio.git repo
 ```
 
-## 9. Arrêter ou retirer le site
-
-Sur le serveur :
+**Lis le script avant de l'installer** : c'est lui qui tournera toutes les 2 minutes.
 
 ```bash
-cd ~/stacks/portfolio && docker compose down
+less repo/deploy/portfolio-sync.sh
 ```
 
-Puis supprime le tunnel `portfolio` dans Cloudflare (**Networks** → **Tunnels**). Il n'y a aucune
-donnée à sauvegarder : tout le site est dans ce dossier `portfolio` sur le PC.
+Installe la config fixe et le script (ils remplacent l'ancien `compose.yaml`) :
 
-## Sécurité, en bref
+```bash
+cp repo/deploy/compose.yaml compose.yaml && cp repo/deploy/portfolio-sync.sh portfolio-sync.sh && chmod 700 portfolio-sync.sh
+```
 
-- Aucun port ouvert sur internet ni sur le réseau local : le tunnel est une connexion sortante.
-  Le port 3090 n'écoute que sur l'IP Tailscale `100.74.216.35`, pour les vérifications.
-- Le tunnel ne joint que le conteneur `web`, sur un réseau Docker propre au portfolio : il ne
-  voit ni Zelda Collection ni la stack d'administration.
-- Le conteneur tourne sans droits root, en lecture seule, sans aucune capacité Linux, limité à
-  64 Mo de mémoire.
-- En-têtes envoyés sur chaque page : politique de contenu stricte (aucun script extérieur ni
-  injecté), HTTPS seul, pas d'affichage dans le cadre d'un autre site, pas de caméra, micro ni
-  géolocalisation.
-- Seuls les fichiers du site sont servis : `.env`, `versions/`, `tools/` et les fichiers cachés
-  répondent 404.
+Premier déploiement : remplit `site/` (la page « en construction » disparaît) et `nginx/` :
+
+```bash
+./portfolio-sync.sh
+```
+
+Redémarre le conteneur avec la nouvelle config :
+
+```bash
+docker compose up -d && docker compose ps
+```
+
+`portfolio` doit être **Up** puis **(healthy)** au bout d'une trentaine de secondes.
+
+Vérifie depuis le réseau `web` :
+
+```bash
+docker run --rm --network web alpine wget -qS -O /dev/null --header "Host: david-ameline.daith42.fr" http://portfolio:8080/ 2>&1 | head -3
+```
+
+### 5. Lancer la synchro toutes les 2 minutes
+
+```bash
+sudo cp repo/deploy/portfolio-sync.service repo/deploy/portfolio-sync.timer /etc/systemd/system/
+```
+
+```bash
+sudo systemctl daemon-reload && sudo systemctl enable --now portfolio-sync.timer
+```
+
+Vérifie :
+
+```bash
+systemctl list-timers portfolio-sync.timer
+```
+
+```bash
+sudo systemctl start portfolio-sync.service && journalctl -u portfolio-sync -n 20 --no-pager
+```
+
+La dernière commande ne doit afficher aucune ligne « ÉCHEC ».
+
+### 6. Être prévenu si une mise à jour échoue (Uptime Kuma)
+
+1. http://asushome1:3001 → **Add New Monitor** → type **Push**, nom `Portfolio – synchro`,
+   **Heartbeat Interval** : `300` secondes → **Save**.
+2. Copie l'adresse **Push URL** affichée, **sans** la partie qui commence par `?`
+   (elle finit par le jeton). Remplace `asushome1` par `100.74.216.35` si besoin.
+3. Sur le serveur :
+
+   ```bash
+   nano ~/stacks/portfolio/sync.env
+   ```
+
+   Une ligne : `PUSH_URL=http://100.74.216.35:3001/api/push/LE-JETON`, puis Ctrl+O, Entrée,
+   Ctrl+X.
+
+   ```bash
+   chmod 600 ~/stacks/portfolio/sync.env
+   ```
+
+4. Ajoute aussi un moniteur **HTTP(s)** vers `https://david-ameline.daith42.fr/`.
+
+À chaque passage (toutes les 2 min), le script envoie « up » ; en cas d'échec, « down » avec la
+raison. S'il ne donne plus de nouvelles pendant 5 minutes, Uptime Kuma te prévient aussi.
+
+### 7. Vérifications finales
+
+- https://david-ameline.daith42.fr/ sur ton téléphone **en 4G** : menu, « Afficher le numéro »,
+  liens des projets.
+- https://daith42.fr/ redirige vers https://david-ameline.daith42.fr/.
+- https://securityheaders.com/?q=david-ameline.daith42.fr : note A ou A+.
+- https://www.linkedin.com/post-inspector/ : l'image et le titre apparaissent.
+- Google Search Console : ajoute la propriété **Domaine** `daith42.fr` (enregistrement TXT dans
+  Cloudflare, sans toucher aux MX, SPF ni DMARC), puis **Sitemaps** →
+  `https://david-ameline.daith42.fr/sitemap.xml`.
+
+---
+
+## Au quotidien : mettre à jour le site
+
+```bash
+git add -A
+```
+
+```bash
+git commit -m "Ce qui change"
+```
+
+```bash
+git push
+```
+
+Attends la coche verte sur GitHub (onglet **Actions**), puis :
+
+```bash
+git push origin main:prod
+```
+
+Le site est à jour **en 2 minutes au plus**. Pour le voir passer sur le serveur :
+
+```bash
+journalctl -u portfolio-sync -f
+```
+
+**Revenir en arrière** : annule le commit fautif sur `main`, puis renvoie sur `prod`.
+
+```bash
+git revert HEAD
+```
+
+```bash
+git push && git push origin main:prod
+```
+
+**Vérifier en local avant d'envoyer** :
+
+```bash
+python tools/check-site.py
+```
+
+## Ce qui ne se met PAS à jour tout seul
+
+Volontairement, pour la sécurité. Si tu modifies l'un de ces fichiers dans le dépôt, il faut le
+réinstaller à la main sur le serveur, après l'avoir relu :
+
+| Fichier | Réinstallation (sur le serveur, dans `~/stacks/portfolio`) |
+|---|---|
+| `deploy/compose.yaml` | `cp repo/deploy/compose.yaml . && docker compose up -d` |
+| `deploy/portfolio-sync.sh` | `cp repo/deploy/portfolio-sync.sh . && chmod 700 portfolio-sync.sh` |
+| `deploy/portfolio-sync.service` / `.timer` | `sudo cp repo/deploy/portfolio-sync.{service,timer} /etc/systemd/system/ && sudo systemctl daemon-reload` |
+
+(`repo/` est mis à jour par la synchro à chaque nouveau commit sur `prod`.)
+
+**Mettre à jour nginx** : change le tag `nginxinc/nginx-unprivileged:1.30-alpine` aux trois
+endroits (`deploy/compose.yaml`, `deploy/portfolio-sync.sh`, `.github/workflows/verifier.yml`),
+envoie sur `prod`, puis réinstalle `compose.yaml` et le script comme ci-dessus.
+
+## Dépannage
+
+| Symptôme | Où regarder |
+|---|---|
+| La vérification GitHub est rouge | Onglet **Actions** → le commit → l'étape en rouge dit quoi corriger |
+| Le site ne se met pas à jour | `journalctl -u portfolio-sync -n 50 --no-pager` sur le serveur |
+| « lien symbolique refusé » | Un fichier du site est un lien : remplace-le par un vrai fichier |
+| « config nginx invalide » | Corrige `deploy/nginx.conf` ; l'ancien site reste en ligne en attendant |
+| Forcer un redéploiement | `~/stacks/portfolio/portfolio-sync.sh --force` |
+| Arrêter les mises à jour | `sudo systemctl disable --now portfolio-sync.timer` |
 
 ## À ajouter dans la fiche du serveur
 
-Dans `asus_serv/asushome1-serv-spec.md`, pour garder la fiche à jour :
+Dans `asus_serv/asushome1-agent.md`, section **Outils installés** :
 
-- tableau **Ports déjà utilisés** :
-  `| 3090 | Portfolio, le site (vérification et Uptime Kuma) | 100.74.216.35 |`
-- section **Exceptions validées** :
-
-  > ### Portfolio — `~/stacks/portfolio`
-  >
-  > Site statique public (nginx sans droits root, lecture seule). **Public par son propre
-  > Cloudflare Tunnel** (conteneur `portfolio-tunnel`, tunnel `portfolio`), sur un réseau Docker
-  > propre à la stack. Port 3090 sur l'IP Tailscale seulement. Construit sur place à chaque envoi
-  > par `bash tools/deploy.sh` depuis le PC ; `docker compose pull` ne suffit pas. Aucune donnée à
-  > sauvegarder. Guide : `DEPLOIEMENT.md` dans le dossier du portfolio.
+`| portfolio-sync (timer systemd) | Met à jour le portfolio depuis la branche prod du dépôt public, toutes les 2 min | journalctl -u portfolio-sync |`

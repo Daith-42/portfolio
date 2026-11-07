@@ -1,0 +1,17 @@
+[Unit]
+Description=Synchronisation du portfolio depuis la branche prod
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=daith
+Group=daith
+ExecStart=/home/daith/stacks/portfolio/portfolio-sync.sh
+TimeoutStartSec=5min
+# Durcissement : le script n'écrit que dans la stack du portfolio.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/daith/stacks/portfolio
+PrivateTmp=true

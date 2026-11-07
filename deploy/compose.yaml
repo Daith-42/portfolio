@@ -1,40 +1,37 @@
-# Stack ~/stacks/portfolio sur asushome1.
-# Public par son propre Cloudflare Tunnel (connexion sortante) : aucun port ouvert sur internet
-# ni sur le réseau local. Le port 3090 n'écoute que sur l'IP Tailscale, pour vérifier le site
-# et pour la sonde Uptime Kuma.
+# Stack ~/stacks/portfolio sur asushome1 — application publique (modèle B de la fiche serveur).
+#
+# Ce fichier est installé à la main, une seule fois : la synchronisation automatique ne le
+# met JAMAIS à jour. Seuls le site (site/) et la config nginx (nginx/) viennent de la branche prod.
+#
+# Public par le tunnel commun « asushome1 » : route david-ameline.daith42.fr → http://portfolio:8080.
+# Aucun port publié.
 
 services:
-  web:
-    build: .
-    image: portfolio-web:latest
-    container_name: portfolio-web
+  portfolio:
+    image: nginxinc/nginx-unprivileged:1.30-alpine
+    container_name: portfolio
     restart: unless-stopped
     read_only: true
     tmpfs:
       - /tmp
-    security_opt:
-      - no-new-privileges:true
     cap_drop:
       - ALL
-    mem_limit: 64m
-    ports:
-      - "100.74.216.35:3090:8080"
-    networks:
-      - edge
-
-  cloudflared:
-    image: cloudflare/cloudflared:2026.10.7
-    container_name: portfolio-tunnel
-    restart: unless-stopped
-    command: tunnel --no-autoupdate run
-    env_file: .env
     security_opt:
       - no-new-privileges:true
-    mem_limit: 128m
-    depends_on:
-      - web
+    mem_limit: 64m
+    environment:
+      - TZ=Europe/Paris
+    volumes:
+      - ./site:/usr/share/nginx/html:ro
+      - ./nginx:/etc/nginx/conf.d:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     networks:
-      - edge
+      - web
 
 networks:
-  edge:
+  web:
+    external: true
