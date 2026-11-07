@@ -1,0 +1,40 @@
+# Stack ~/stacks/portfolio sur asushome1.
+# Public par son propre Cloudflare Tunnel (connexion sortante) : aucun port ouvert sur internet
+# ni sur le réseau local. Le port 3090 n'écoute que sur l'IP Tailscale, pour vérifier le site
+# et pour la sonde Uptime Kuma.
+
+services:
+  web:
+    build: .
+    image: portfolio-web:latest
+    container_name: portfolio-web
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    mem_limit: 64m
+    ports:
+      - "100.74.216.35:3090:8080"
+    networks:
+      - edge
+
+  cloudflared:
+    image: cloudflare/cloudflared:2026.10.7
+    container_name: portfolio-tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    env_file: .env
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 128m
+    depends_on:
+      - web
+    networks:
+      - edge
+
+networks:
+  edge:

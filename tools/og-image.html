@@ -1,0 +1,53 @@
+<!doctype html>
+<!-- Source de og-image.png (1200×630). Régénérer avec : python tools/build-og.py -->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700&family=Cinzel:wght@600&family=IBM+Plex+Mono:wght@400;500&display=block" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    background: #0c2622; color: #f1e7d0;
+    font-family: "Alegreya Sans", sans-serif;
+    display: grid; grid-template-columns: 1fr 380px; gap: 64px;
+    align-items: center; padding: 0 80px;
+    border-bottom: 12px solid #081c19;
+  }
+  .eyebrow { display: flex; align-items: center; gap: 14px; color: #a7c0b6;
+    font-size: 22px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+  .lz { width: 14px; height: 14px; background: #e2c46f; transform: rotate(45deg); flex-shrink: 0; }
+  h1 { font-family: "Cinzel", serif; font-weight: 600; font-size: 92px; line-height: 1.02; margin: 24px 0 28px; }
+  p { font-size: 32px; line-height: 44px; max-width: 620px; }
+  p b { color: #ead07f; font-weight: 700; }
+  .url { margin-top: 36px; font-family: "IBM Plex Mono", monospace; font-size: 22px; color: #8fd3f4; }
+  .card { background: #12332d; border: 2px solid #22504a; border-radius: 20px; overflow: hidden; }
+  .mono { background: #081c19; border-bottom: 2px solid #22504a; height: 200px; display: grid; place-items: center; }
+  .dia { position: relative; width: 150px; height: 150px; display: grid; place-items: center; }
+  .dia::before, .dia::after { content: ""; position: absolute; transform: rotate(45deg); }
+  .dia::before { inset: 20px; border: 2px solid #4e837a; }
+  .dia::after { inset: 36px; border: 2px solid #e2c46f; opacity: .55; }
+  .dia span { position: relative; font-family: "Cinzel", serif; font-weight: 600; font-size: 40px; color: #ead07f; }
+  dl { padding: 8px 28px 12px; }
+  .row { display: grid; grid-template-columns: 140px 1fr; padding: 14px 0; border-bottom: 2px solid #22504a; font-size: 24px; }
+  .row:last-child { border-bottom: 0; }
+  dt { color: #a7c0b6; font-size: 17px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding-top: 4px; }
+</style>
+</head>
+<body>
+  <div>
+    <div class="eyebrow"><span class="lz"></span>Étudiant · SUPINFO · Portfolio</div>
+    <h1>David<br>Ameline</h1>
+    <p>Développeur web en recherche d'un <b>stage</b> et d'une <b>alternance</b> dès 2027.</p>
+    <div class="url">david-ameline.daith42.fr</div>
+  </div>
+  <div class="card">
+    <div class="mono"><div class="dia"><span>DA</span></div></div>
+    <dl>
+      <div class="row"><dt>Stage</dt><dd>Juin → sept. 2027</dd></div>
+      <div class="row"><dt>Alternance</dt><dd>Dès sept. 2027</dd></div>
+      <div class="row"><dt>Stack</dt><dd>Vue3 · Python</dd></div>
+    </dl>
+  </div>
+</body>
+</html>
