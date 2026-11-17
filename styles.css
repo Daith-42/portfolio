@@ -385,7 +385,8 @@ section { padding: 72px 0; }
 @media (min-width: 720px) {
   .more li { grid-template-columns: 220px 1fr auto; gap: 20px; align-items: baseline; padding: 14px 24px; }
 }
-.more li a { font-weight: 700; }
+.more li a, .more li > strong { font-weight: 700; }
+.more li > strong { color: var(--ink); }
 
 /* ---------- Parcours ---------- */
 

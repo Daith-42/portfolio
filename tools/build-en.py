@@ -338,7 +338,7 @@ KEEP = {
     "David Ameline", "Sections", "CV", "Contact", "asushome1", "Administration", "SSH", "0", "Linux · Docker",
     "Homelab · 2026", "Zelda Collection", "FR · EN", "PAL-FR · 2011", "Next.js · TypeScript", "PostgreSQL · Docker",
     "D-Wallet", "Vue3 · Vite", "Python · Flask", "AutoHotkey", "OrthoAutoAI", "Astro", "UI/UX", "Corafolio",
-    "coralinechapeau.gitlab.io", "Collaboration", "1PROJ", "Python", "Quatrian Inc. · Canada", "Master of Engineering",
+    "coralinechapeau.gitlab.io", "Collaboration", "1PROJ – A Mole in the Hole", "Python", "Quatrian Inc. · Canada", "Master of Engineering",
     "SUPINFO", "· 2025–2030", "PSC1", "HTML / CSS", "JavaScript", "TypeScript", "PHP", "Vue3", "React", "Laravel",
     "Symfony", "C", "C++", "Java", "SQL", "Linux (Ubuntu Server)", "Windows Server", "Docker", "VPN Tailscale",
     "Cloudflare Tunnel · Zero Trust", "DNS · DNSSEC · DMARC", "Team Intime", "GitHub", "LinkedIn",
