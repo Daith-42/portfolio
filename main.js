@@ -90,7 +90,7 @@ if (projectList) {
 // Changement de langue : l'autre page s'ouvre au même endroit, pas tout en haut.
 // Les deux pages ont la même structure (l'anglaise est générée depuis la française) : on retient
 // le bloc en haut de l'écran par son rang, et la position dans ce bloc (les textes n'ont pas la même longueur).
-// La section part aussi dans l'adresse, au cas où le stockage du navigateur serait bloqué.
+// La position passe par le stockage de l'onglet (sessionStorage) : l'adresse reste propre, sans #ancre.
 const LANG_KEY = 'lang-switch-pos';
 const scrollOffset = () => parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
 // Rang compté sur tous les blocs, même repliés (accordéon mobile), pour qu'il reste le même d'une page à l'autre.
@@ -102,18 +102,15 @@ document.querySelectorAll('.lang-switch').forEach(a => a.addEventListener('click
   const list = anchors();
   let index = -1;
   list.forEach((el, i) => { if (el.offsetHeight > 0 && el.getBoundingClientRect().top <= offset + 1) index = i; });
-  const el = list[index];
-  const section = el && el.closest('section[id]');
-  if (!section) return;
-  const r = el.getBoundingClientRect();
+  if (index < 0) return;
+  const r = list[index].getBoundingClientRect();
   const ratio = Math.min(1, Math.max(0, (offset - r.top) / r.height));
-  try { sessionStorage.setItem(LANG_KEY, JSON.stringify({ id: section.id, index, ratio })); } catch {}
-  a.href = a.getAttribute('href').split('#')[0] + '#' + section.id;
+  try { sessionStorage.setItem(LANG_KEY, JSON.stringify({ page: a.pathname, index, ratio })); } catch {}
 }));
 try {
   const saved = JSON.parse(sessionStorage.getItem(LANG_KEY) || 'null');
   sessionStorage.removeItem(LANG_KEY);
-  let target = saved && location.hash === '#' + saved.id && anchors()[saved.index];
+  let target = saved && saved.page === location.pathname && !location.hash && anchors()[saved.index];
   while (target && target.offsetHeight === 0) target = target.parentElement; // bloc replié ici : on vise sa carte
   if (target) {
     const restore = () => {
