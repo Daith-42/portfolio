@@ -816,3 +816,29 @@ html { scrollbar-color: var(--line-strong) var(--surface-sunken); }
   .js .project .project-foot { order: 3; }
 }
 @media (prefers-reduced-motion: reduce) { .project-toggle svg { transition: none; } }
+
+/* Pop-ups : paragraphe courant et pied avec plusieurs liens */
+.details-text { color: var(--ink-muted); }
+.details-text strong { color: var(--ink); font-weight: 700; }
+.details-links { display: inline-flex; flex-wrap: wrap; gap: 8px 20px; }
+
+/* Centres d'intérêt : titre dans la carte, comme Engagements */
+.interests-card { display: grid; gap: 20px; align-content: start; }
+.interests-card h3, .commit h3 { margin: 0; }
+
+/* Pictogrammes devant les compétences (monochromes, couleur du texte) */
+.tag { gap: 8px; }
+.tag-ico { width: 16px; height: 16px; flex-shrink: 0; color: var(--ink-muted); }
+.tag { transition: color 150ms, border-color 150ms; }
+.tag-ico { transition: color 150ms; }
+.tag:hover { color: var(--gold-ink); border-color: var(--line-strong); }
+.tag:hover .tag-ico { color: var(--gold); }
+
+/* Compétences sur grand écran : grille en 6 parts.
+   1re rangée : Développement web (4/6) + Programmation (2/6) ; 2e rangée : deux moitiés égales. */
+@media (min-width: 1040px) {
+  .inventory { grid-template-columns: repeat(6, 1fr); }
+  .inventory > .card { grid-column: span 2; }
+  .inventory > .card--wide { grid-column: span 4; }
+  .inventory > .card--half { grid-column: span 3; }
+}

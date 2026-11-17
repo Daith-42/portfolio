@@ -19,3 +19,6 @@ desktop.ini
 
 # Fichiers temporaires Python
 __pycache__/
+
+# Refonte du CV en cours (sources HTML, photo, versions, script) : gardée en local pour l'instant
+cv/
