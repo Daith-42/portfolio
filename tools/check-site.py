@@ -18,7 +18,7 @@ SITE_FILES = [
 ]
 # Pages indexées : (fichier, langue attendue)
 PAGES = [("index.html", "fr"), ("en/index.html", "en")]
-ASSETS = ["styles.css", "main.js", "cv-david-ameline.pdf", "cv-apercu.webp"]
+ASSETS = ["styles.css", "main.js", "cv-david-ameline.pdf", "cv-apercu.webp", "og-image.png", "og-image-en.png"]
 errors = []
 
 
@@ -61,6 +61,10 @@ for page, lang in PAGES:
     canonical = re.search(r'<link rel="canonical" href="([^"]+)"', html)
     check(canonical, f"{page} : balise canonical absente")
     check(html.count("<h1") == 1, f"{page} : la page doit avoir exactement un h1")
+    # Images de partage : chaque balise doit viser un fichier qui existe vraiment
+    for prop in ("og:image", "twitter:image"):
+        img = re.search(r'<meta (?:property|name)="' + prop + r'" content="https://[^/"]+/([^"?]+)', html)
+        check(img and (ROOT / img.group(1)).is_file(), f"{page} : {prop} ne pointe vers aucun fichier du site")
     if canonical:
         check(canonical.group(1) in locs, f"{page} : l'adresse canonical n'est pas dans sitemap.xml")
     alternates[page] = (canonical.group(1) if canonical else None, lang,
@@ -102,10 +106,11 @@ for page in ["index.html", "en/index.html", "404.html"]:
         continue
     page_html = path.read_text(encoding="utf-8")
     for asset in ASSETS:
-        if not (ROOT / asset).exists() or not re.search(r'(?:href|src)="/?' + re.escape(asset), page_html):
+        ref = r'(?:href|src|content)="(?:https://[^"/]+)?/?' + re.escape(asset)
+        if not (ROOT / asset).exists() or not re.search(ref, page_html):
             continue
         expected = hashlib.sha256((ROOT / asset).read_bytes()).hexdigest()[:8]
-        found = re.findall(r'(?:href|src)="/?' + re.escape(asset) + r'(?:\?v=([0-9a-f]+))?"', page_html)
+        found = re.findall(ref + r'(?:\?v=([0-9a-f]+))?"', page_html)
         check(found and all(v == expected for v in found),
               f"{page} : empreinte de {asset} pas à jour, lance py tools/version-assets.py puis py tools/build-en.py")
 

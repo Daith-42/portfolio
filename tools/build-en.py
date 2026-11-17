@@ -293,6 +293,11 @@ def translate(fr: str) -> str:
     must('<meta property="og:locale" content="fr_FR">\n  <meta property="og:locale:alternate" content="en_GB">',
          '<meta property="og:locale" content="en_GB">\n  <meta property="og:locale:alternate" content="fr_FR">')
     must(f'{SITE}/og-image.png', f'{SITE}/og-image-en.png', 3)
+    en_img = ROOT / "og-image-en.png"
+    if en_img.exists():  # l'empreinte copiée depuis la page française est celle de l'image française
+        import hashlib
+        fp = hashlib.sha256(en_img.read_bytes()).hexdigest()[:8]
+        s = re.sub(r'og-image-en[.]png[?]v=[0-9a-f]+', 'og-image-en.png?v=' + fp, s)
     must('<a class="lang-switch" href="/en/" hreflang="en" lang="en" aria-label="English version">EN</a>',
          '<a class="lang-switch" href="/" hreflang="fr" lang="fr" aria-label="English version">FR</a>')
     # fichiers locaux en chemins absolus (la page est servie depuis /en/)

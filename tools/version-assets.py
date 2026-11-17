@@ -11,7 +11,7 @@ import hashlib, re, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-ASSETS = ["styles.css", "main.js", "cv-david-ameline.pdf", "cv-apercu.webp"]
+ASSETS = ["styles.css", "main.js", "cv-david-ameline.pdf", "cv-apercu.webp", "og-image.png", "og-image-en.png"]
 PAGES = ["index.html", "404.html"]  # en/index.html est régénérée depuis index.html (tools/build-en.py)
 
 
@@ -20,8 +20,8 @@ def fingerprint(name: str) -> str:
 
 
 def pattern(name: str) -> re.Pattern:
-    # href="styles.css", href="/styles.css" ou src="main.js?v=…", avec ou sans empreinte
-    return re.compile(r'((?:href|src)="/?' + re.escape(name) + r')(?:\?v=[0-9a-f]+)?"')
+    # href="styles.css", src="/main.js?v=…" ou content="https://…/og-image.png", avec ou sans empreinte
+    return re.compile(r'((?:href|src|content)="(?:https://[^"/]+)?/?' + re.escape(name) + r')(?:\?v=[0-9a-f]+)?"')
 
 
 def main() -> None:
