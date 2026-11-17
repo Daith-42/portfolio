@@ -15,6 +15,7 @@ SITE_FILES = [
     "og-image.png", "og-image-en.png", "favicon.ico", "favicon.svg", "apple-touch-icon.png", "icon-192.png", "icon-512.png",
     "site.webmanifest", "robots.txt", "sitemap.xml",
     "cv-david-ameline.pdf", "cv-apercu.webp",
+    "google1074ca0dada9b6b3.html",  # validation du site dans Google Search Console : ne pas supprimer
 ]
 # Pages indexées : (fichier, langue attendue)
 PAGES = [("index.html", "fr"), ("en/index.html", "en")]
