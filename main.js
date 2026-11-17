@@ -5,7 +5,7 @@ const menuBtn = document.querySelector('.menu-btn');
 function setMenu(open) {
   nav.classList.toggle('is-open', open);
   menuBtn.setAttribute('aria-expanded', String(open));
-  menuBtn.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
+  menuBtn.setAttribute('aria-label', open ? menuBtn.dataset.labelClose : menuBtn.dataset.labelOpen);
 }
 menuBtn.addEventListener('click', () => setMenu(!nav.classList.contains('is-open')));
 nav.addEventListener('click', e => { if (e.target.closest('a')) setMenu(false); });
@@ -16,7 +16,9 @@ addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
 document.querySelectorAll('.reveal-phone').forEach(btn => {
   btn.addEventListener('click', () => {
     const intl = atob(btn.dataset.k).split('').reverse().join('');      // +33…
-    const local = ('0' + intl.slice(3)).replace(/(\d{2})(?=\d)/g, '$1 '); // 07 66 …
+    const local = document.documentElement.lang === 'en'
+      ? intl.replace(/^\+33(\d)(\d{2})(\d{2})(\d{2})(\d{2})$/, '+33 $1 $2 $3 $4 $5') // +33 7 66 … (format international)
+      : ('0' + intl.slice(3)).replace(/(\d{2})(?=\d)/g, '$1 ');                         // 07 66 …
     const link = document.createElement('a');
     link.href = 'tel:' + intl;
     link.innerHTML = btn.innerHTML;
@@ -41,3 +43,18 @@ function markCurrent() {
 }
 addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(markCurrent); } }, { passive: true });
 markCurrent();
+
+// Pop-ups de détails des projets (<dialog> natif : Échap, focus et retour du focus gérés par le navigateur).
+document.querySelectorAll('[data-dialog]').forEach(opener => {
+  const dialog = document.getElementById(opener.dataset.dialog);
+  if (!dialog || typeof dialog.showModal !== 'function') return;
+  opener.addEventListener('click', () => dialog.showModal());
+  dialog.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', () => dialog.close()));
+  // Un clic sur le fond assombri (hors de la fenêtre) ferme aussi.
+  dialog.addEventListener('click', e => {
+    if (e.target !== dialog) return;
+    const r = dialog.getBoundingClientRect();
+    const inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+    if (!inside) dialog.close();
+  });
+});

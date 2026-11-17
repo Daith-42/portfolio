@@ -20,9 +20,10 @@ CONTAINER="portfolio"
 
 # Les seuls fichiers publiés.
 SITE_FILES=(
-  index.html styles.css main.js 404.html
-  og-image.png favicon.ico favicon.svg apple-touch-icon.png icon-192.png icon-512.png
+  index.html en/index.html styles.css main.js 404.html
+  og-image.png og-image-en.png favicon.ico favicon.svg apple-touch-icon.png icon-192.png icon-512.png
   site.webmanifest robots.txt sitemap.xml
+  cv-david-ameline.pdf cv-apercu.webp
 )
 NGINX_SRC="deploy/nginx.conf"
 
@@ -73,6 +74,7 @@ copy_regular() { # copy_regular <source dans le dépôt> <destination>
   local src="$REPO/$1"
   [ -L "$src" ] && fail "$1 est un lien symbolique, refusé"
   [ -f "$src" ] || fail "$1 manquant dans $BRANCH"
+  mkdir -p "$(dirname "$2")"
   cp --no-dereference --preserve=timestamps "$src" "$2"
 }
 for f in "${SITE_FILES[@]}"; do

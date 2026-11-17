@@ -16,3 +16,6 @@ build/
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# Fichiers temporaires Python
+__pycache__/

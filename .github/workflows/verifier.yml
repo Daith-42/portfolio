@@ -16,13 +16,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
       - name: Fichiers, référencement et sécurité
-        run: python3 tools/check-site.py
+        run: |
+          python -m pip install --quiet pypdf
+          python tools/check-site.py
 
       - name: HTML (validateur du W3C)
         run: >
           docker run --rm -v "$PWD:/site:ro" ghcr.io/validator/validator:latest
-          vnu --errors-only /site/index.html /site/404.html
+          vnu --errors-only /site/index.html /site/en/index.html /site/404.html
 
       - name: Config nginx
         run: >

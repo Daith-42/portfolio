@@ -539,3 +539,251 @@ section { padding: 72px 0; }
   .contact-card { padding: 20px 16px; }
   .contact-list a, .contact-list .static, .contact-list button { gap: 12px; }
 }
+
+/* ---------- Vitrine : posture de sécurité d'asushome1 ---------- */
+
+.posture {
+  width: 100%; max-width: 400px;
+  background: var(--surface); border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md); overflow: hidden;
+  font-family: var(--font-mono); font-size: 13px; line-height: 20px;
+}
+.posture-head {
+  display: flex; justify-content: space-between; gap: 12px;
+  padding: 10px 14px; border-bottom: 1px solid var(--line);
+  background: var(--surface-sunken); color: var(--ink-muted);
+}
+.posture-head span:first-child { color: var(--gold-ink); }
+.posture ul { list-style: none; margin: 0; padding: 6px 0; }
+.posture li {
+  display: grid; grid-template-columns: 16px 1fr auto; gap: 10px; align-items: baseline;
+  padding: 5px 14px;
+}
+.posture .ok { color: var(--forest); }
+.posture li span:nth-child(2) { color: var(--ink-muted); }
+.posture b { font-weight: 500; color: var(--ink); text-align: right; }
+@media (max-width: 479px) {
+  .posture li { grid-template-columns: 16px 1fr; }
+  .posture b { grid-column: 2; text-align: left; }
+}
+.project-body p + p { margin-top: -4px; }
+
+/* Compétences : développement et systèmes ont le même poids (deux colonnes chacun) */
+@media (min-width: 1040px) {
+  .inventory .card--wide { grid-column: span 2; }
+}
+.qualities { margin: 16px 0 0; }
+
+/* Projets : trois cartes sous le projet phare sur grand écran */
+@media (min-width: 960px) {
+  .projects { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 720px) and (max-width: 959px) {
+  .projects > .project:not(.project--featured):last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
+
+/* ---------- Passe design (17 nov.) ---------- */
+
+/* Sections : sans séparateurs, un seul espace entre deux sections */
+#contenu > section + section { padding-top: 0; }
+@media (min-width: 720px) { section { padding: 88px 0; } }
+
+/* Parcours : bandeau des travaux agricoles sous les deux colonnes */
+.side-jobs { margin-top: 56px; }
+@media (min-width: 720px) { .side-jobs { margin-top: 72px; } }
+.side-jobs .sub-title { margin: 0 0 16px; }
+.side-jobs ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.side-jobs li { display: grid; gap: 2px; align-content: start; }
+.side-jobs li + li { padding-top: 16px; border-top: 1px solid var(--line); }
+@media (min-width: 720px) {
+  .side-jobs ul { grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .side-jobs li + li { padding-top: 0; border-top: 0; padding-left: 24px; border-left: 1px solid var(--line); }
+}
+
+/* Centres d'intérêt : une liste compacte dans une seule carte */
+.hobbies {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px 24px;
+}
+.hobbies li { display: grid; grid-template-columns: 20px 1fr; gap: 12px; align-items: start; }
+.hobbies svg { width: 20px; height: 20px; color: var(--forest); margin-top: 3px; }
+.hobbies strong { font-weight: 700; }
+
+/* Cibles tactiles : les liens texte gagnent de la hauteur sans décaler la mise en page */
+.more li a, .project-foot a { padding-block: 8px; margin-block: -8px; }
+
+/* Vitrine : logo Corafolio (couleurs d'origine du site de Coraline Chapeau) */
+.cora { display: grid; justify-items: center; gap: 16px; }
+.cora-logo { width: 72px; height: auto; }
+.cora .type-code { color: var(--ink-muted); }
+
+/* ---------- Pop-up de détails d'un projet ---------- */
+
+.link-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 0; margin: -8px 0;
+  background: none; border: 0; cursor: pointer;
+  font: inherit; font-weight: 700; color: var(--ocarina);
+  text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px;
+}
+.link-btn:hover { text-decoration-thickness: 2px; }
+.link-btn svg { width: 16px; height: 16px; }
+
+.details {
+  width: min(680px, calc(100vw - 32px)); max-height: min(86vh, 860px);
+  padding: 0; border: 1px solid var(--line-strong); border-radius: var(--radius-lg);
+  background: var(--surface-raised); color: var(--ink);
+  overflow: hidden; flex-direction: column;
+}
+.details[open] { display: flex; animation: details-in 160ms ease-out; }
+.details::backdrop { background: rgba(4, 14, 12, 0.72); }
+@keyframes details-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+html:has(.details[open]) { overflow: hidden; }
+
+.details-head {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+  padding: 20px 24px 16px; border-bottom: 1px solid var(--line);
+}
+.details-head .type-title { margin-top: 4px; }
+.details-close {
+  flex-shrink: 0; width: 40px; height: 40px; display: grid; place-items: center;
+  border: 1px solid var(--line-strong); border-radius: var(--radius-md);
+  background: transparent; color: var(--ink); cursor: pointer; transition: background-color 150ms;
+}
+.details-close:hover { background: var(--surface); }
+.details-close svg { width: 18px; height: 18px; }
+
+.details-body { padding: 20px 24px 8px; overflow-y: auto; display: grid; gap: 16px; align-content: start; }
+.details-lead { font-size: 18px; line-height: 28px; }
+.details-body h3 { margin: 8px 0 0; }
+.details-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.details-list li { position: relative; padding-left: 20px; color: var(--ink-muted); }
+.details-list li::before {
+  content: ""; position: absolute; left: 2px; top: 10px; width: 6px; height: 6px;
+  background: var(--gold); transform: rotate(45deg);
+}
+.details-list strong { color: var(--ink); font-weight: 700; }
+.details-stack { margin: 0 0 12px; display: grid; gap: 0; }
+.details-stack > div { display: grid; gap: 2px; padding: 12px 0; border-top: 1px solid var(--line); }
+@media (min-width: 560px) { .details-stack > div { grid-template-columns: 110px 1fr; gap: 16px; } }
+.details-stack dt { font-weight: 700; color: var(--gold-ink); }
+.details-stack dd { margin: 0; color: var(--ink-muted); }
+
+.details-foot {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding: 14px 24px; border-top: 1px solid var(--line); background: var(--surface-sunken);
+}
+@media (max-width: 479px) {
+  .details-head, .details-body, .details-foot { padding-left: 16px; padding-right: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .details[open] { animation: none; } }
+
+/* ---------- Zelda Collection : 2e projet phare, vitrine à droite ---------- */
+
+@media (min-width: 900px) {
+  .project--reverse { flex-direction: row-reverse; }
+  .project--reverse .project-showcase { border-right: 0; border-left: 1px solid var(--line); }
+}
+
+/* Miniature : une fiche d'objet de collection, dans la charte du projet */
+.zc {
+  width: 100%; max-width: 360px;
+  background: var(--surface); border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md); overflow: hidden;
+}
+.zc-head {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding: 10px 14px; border-bottom: 1px solid var(--line);
+  background: var(--surface-sunken); color: var(--ink-muted);
+}
+.zc-brand {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font-display); font-weight: 600; font-size: 14px; letter-spacing: 0.04em; color: var(--ink);
+}
+.zc-brand .lozenge { width: 6px; height: 6px; }
+.zc-item { display: grid; grid-template-columns: 76px 1fr; gap: 14px; padding: 14px; }
+.zc-thumb {
+  aspect-ratio: 4 / 5; display: grid; place-items: center;
+  background: var(--surface-sunken); border: 1px solid var(--line); border-radius: var(--radius-sm);
+}
+.zc-thumb .lozenge { width: 14px; height: 14px; opacity: 0.6; }
+.zc-info { display: grid; gap: 2px; align-content: start; min-width: 0; }
+.zc-info .type-code { color: var(--ink-muted); font-size: 12px; line-height: 18px; }
+.zc-info strong { font-size: 15px; line-height: 22px; font-weight: 700; }
+.zc-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.zc-badges .badge { font-size: 11px; line-height: 16px; padding: 2px 6px; }
+.zc-foot {
+  display: flex; justify-content: space-between; padding: 10px 14px;
+  border-top: 1px solid var(--line); color: var(--ink-muted); font-size: 14px;
+}
+.zc-foot .type-figure { color: var(--gold-ink); font-size: 14px; }
+.details-foot a { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; }
+.details-foot a svg { width: 16px; height: 16px; }
+.more li .link-btn { margin-left: 4px; }
+
+/* Bouton qui ouvre une pop-up : encadré, pour ne pas ressembler aux liens qui sortent du site */
+.details-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 32px; padding: 4px 10px;
+  border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
+  background: transparent; color: var(--ink); cursor: pointer;
+  font: inherit; font-size: 15px; line-height: 20px; font-weight: 600;
+  transition: background-color 150ms, border-color 150ms;
+}
+.details-btn:hover { background: var(--surface); border-color: var(--ink-muted); }
+.details-btn svg { width: 14px; height: 14px; color: var(--gold); }
+.more li .details-btn { margin-left: 6px; vertical-align: middle; }
+
+/* Barres de défilement dans la charte (page et pop-ups) */
+html { scrollbar-color: var(--line-strong) var(--surface-sunken); }
+.details-body { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: var(--surface-sunken); }
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong); border-radius: 8px;
+  border: 3px solid var(--surface-sunken);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--ink-muted); }
+.details-body::-webkit-scrollbar { width: 10px; }
+.details-body::-webkit-scrollbar-track { background: transparent; }
+.details-body::-webkit-scrollbar-thumb { border-color: var(--surface-raised); }
+
+/* ---------- Section CV ---------- */
+
+.cv-card { display: grid; gap: 24px; align-items: center; }
+@media (min-width: 720px) { .cv-card { grid-template-columns: 240px 1fr; gap: 40px; padding: 32px; } }
+.cv-thumb {
+  position: relative; display: block; width: 100%; max-width: 240px; margin: 0 auto;
+  aspect-ratio: 4 / 5; overflow: hidden; padding: 0; cursor: zoom-in;
+  border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: #fff;
+  transition: border-color 150ms;
+}
+.cv-thumb img { width: 100%; height: auto; display: block; }
+.cv-thumb:hover { border-color: var(--gold); }
+.cv-thumb-hint {
+  position: absolute; left: 8px; bottom: 8px;
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px;
+  border-radius: var(--radius-sm); background: var(--surface-sunken); color: var(--ink);
+  font-size: 14px; line-height: 20px; font-weight: 600; border: 1px solid var(--line-strong);
+}
+.cv-thumb-hint svg { width: 14px; height: 14px; color: var(--gold); }
+.cv-text { display: grid; gap: 12px; justify-items: start; }
+.cv-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; }
+@media (max-width: 479px) { .cv-actions .btn { flex: 1 1 100%; } }
+
+/* Pop-up d'aperçu : plus large, l'image du CV sur fond clair */
+.details--cv { width: min(860px, calc(100vw - 32px)); }
+.cv-preview-body { padding: 16px; background: var(--surface-sunken); }
+.cv-preview-body img { width: 100%; height: auto; display: block; border-radius: var(--radius-sm); background: #fff; }
+.details-foot .btn svg { width: 16px; height: 16px; }
+
+/* Sélecteur de langue (FR / EN) dans l'en-tête */
+.lang-switch {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 40px; height: 36px; padding: 0 10px;
+  border: 1px solid var(--line); border-radius: var(--radius-md);
+  color: var(--ink-muted); text-decoration: none;
+  font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.06em;
+  transition: color 150ms, border-color 150ms;
+}
+.lang-switch:hover { color: var(--ink); border-color: var(--line-strong); text-decoration: none; }

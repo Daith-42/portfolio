@@ -9,7 +9,8 @@ from pathlib import Path
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 ROOT = Path(__file__).resolve().parent.parent
-FILES = ["index.html", "robots.txt", "sitemap.xml", "tools/og-image.html"]
+FILES = ["index.html", "robots.txt", "sitemap.xml", "tools/og-image.html", "tools/og-image-en.html"]
+# en/index.html est régénérée ensuite par py tools/build-en.py
 
 if len(sys.argv) != 2 or not sys.argv[1].startswith("https://"):
     sys.exit("Usage : python tools/set-domain.py https://nouvelle-adresse.fr/")

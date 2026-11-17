@@ -198,6 +198,39 @@ raison. S'il ne donne plus de nouvelles pendant 5 minutes, Uptime Kuma te prévi
 
 ## Au quotidien : mettre à jour le site
 
+> Sur ce PC, lance les scripts Python avec **`py`** (et non `python`) dans PowerShell : la commande
+> `python` y pointe vers le raccourci du Microsoft Store, qui ne fonctionne pas.
+
+Pour voir le site en local, sans cache :
+
+```bash
+py tools/serve.py
+```
+
+Si tu as modifié un texte de `index.html`, régénère la page anglaise (le script te dit quelle
+phrase traduire s'il en manque une, dans `tools/build-en.py`) :
+
+```bash
+py tools/build-en.py
+```
+
+Pour changer le CV (PDF + aperçu), puis régénérer la page anglaise :
+
+```bash
+py tools/build-cv.py "chemin/vers/mon CV.pdf"
+```
+
+Si tu as modifié `styles.css` ou `main.js`, mets à jour leur empreinte dans les pages (sinon les
+visiteurs pourraient garder l'ancien CSS en cache ; la vérification GitHub le refuse de toute façon) :
+
+```bash
+py tools/version-assets.py
+```
+
+```bash
+py tools/build-en.py
+```
+
 ```bash
 git add -A
 ```
@@ -235,7 +268,7 @@ git push && git push origin main:prod
 **Vérifier en local avant d'envoyer** :
 
 ```bash
-python tools/check-site.py
+py tools/check-site.py
 ```
 
 ## Ce qui ne se met PAS à jour tout seul
