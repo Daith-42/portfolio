@@ -787,3 +787,32 @@ html { scrollbar-color: var(--line-strong) var(--surface-sunken); }
   transition: color 150ms, border-color 150ms;
 }
 .lang-switch:hover { color: var(--ink); border-color: var(--line-strong); text-decoration: none; }
+
+/* ---------- Projets sur mobile : cartes en accordéon ---------- */
+
+.project-toggle { display: none; }
+@media (max-width: 719px) {
+  .js .project-toggle {
+    display: inline-flex; align-items: center; gap: 8px; justify-self: start;
+    min-height: 40px; padding: 8px 14px;
+    border: 1px solid var(--line-strong); border-radius: var(--radius-md);
+    background: transparent; color: var(--ink); cursor: pointer;
+    font: inherit; font-size: 15px; line-height: 20px; font-weight: 600;
+    transition: background-color 150ms, border-color 150ms;
+  }
+  .js .project-toggle:hover { background: var(--surface); }
+  .js .project-toggle svg { width: 16px; height: 16px; color: var(--gold); transition: transform 150ms; }
+  .js .project.is-open .project-toggle svg { transform: rotate(180deg); }
+
+  /* fermée : badges + titre + bouton */
+  .js .project:not(.is-open) .project-showcase,
+  .js .project:not(.is-open) .project-body > p,
+  .js .project:not(.is-open) .project-foot { display: none; }
+
+  /* ouverte : le texte, puis l'illustration, puis les liens (le contenu s'ouvre sous le bouton) */
+  .js .project .project-main { display: contents; }
+  .js .project .project-body { order: 1; }
+  .js .project .project-showcase { order: 2; border-bottom: 0; border-top: 1px solid var(--line); }
+  .js .project .project-foot { order: 3; }
+}
+@media (prefers-reduced-motion: reduce) { .project-toggle svg { transition: none; } }

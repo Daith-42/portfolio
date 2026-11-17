@@ -58,3 +58,31 @@ document.querySelectorAll('[data-dialog]').forEach(opener => {
     if (!inside) dialog.close();
   });
 });
+
+// Projets sur mobile : chaque carte se replie en accordéon (badges + titre), et s'ouvre au toucher.
+// La classe .js active le repli : sans JavaScript, toutes les cartes restent ouvertes.
+const projectList = document.querySelector('.projects');
+if (projectList) {
+  document.documentElement.classList.add('js');
+  const labelMore = projectList.dataset.labelMore;
+  const labelLess = projectList.dataset.labelLess;
+  projectList.querySelectorAll(':scope > .project').forEach((card, i) => {
+    const title = card.querySelector('h3');
+    if (!title) return;
+    if (!card.id) card.id = 'projet-' + (i + 1);
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'project-toggle';
+    toggle.setAttribute('aria-controls', card.id);
+    toggle.innerHTML = '<span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+    const label = toggle.querySelector('span');
+    const setOpen = open => {
+      card.classList.toggle('is-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+      label.textContent = open ? labelLess : labelMore;
+    };
+    setOpen(false);
+    toggle.addEventListener('click', () => setOpen(!card.classList.contains('is-open')));
+    title.after(toggle);
+  });
+}

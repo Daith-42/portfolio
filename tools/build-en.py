@@ -252,6 +252,8 @@ ATTR = {
     "English version": "Version française",
     "Ouvrir le menu": "Open menu",
     "Fermer le menu": "Close menu",
+    "Afficher le projet": "Show project",
+    "Masquer": "Hide",
     "Fiche de disponibilité": "Availability",
     "Logo Corafolio": "Corafolio logo",
     "Agrandir l'aperçu du CV": "Enlarge the CV preview",
@@ -340,7 +342,7 @@ def translate(fr: str) -> str:
             return m.group(0)
         problems.append(f'attribut {name} sans traduction : "{val}"')
         return m.group(0)
-    s = re.sub(r'\b(alt|aria-label|title|content|data-label-open|data-label-close)="([^"]*)"', attr_sub, s)
+    s = re.sub(r'\b(alt|aria-label|title|content|data-label-open|data-label-close|data-label-more|data-label-less)="([^"]*)"', attr_sub, s)
 
     # --- textes entre balises (hors scripts) ---
     parts = re.split(r"(<script.*?</script>|<style.*?</style>)", s, flags=re.S)
