@@ -1,4 +1,10 @@
 // Portfolio David Ameline : menu mobile, téléphone masqué, section active.
+
+// Statistiques de visite (GoatCounter auto-hébergé : sans cookie, aucune IP gardée).
+// Réglage lu par count.js, chargé juste après ce fichier : le nom du site est ajouté devant
+// la page (david-ameline.daith42.fr/en/), pour distinguer les sous-domaines dans un seul tableau de bord.
+window.goatcounter = { path: p => location.host + p };
+
 // Menu mobile : un bouton qui déplie les liens de navigation.
 const nav = document.getElementById('nav');
 const menuBtn = document.querySelector('.menu-btn');

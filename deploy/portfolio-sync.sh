@@ -20,7 +20,7 @@ CONTAINER="portfolio"
 
 # Les seuls fichiers publiés.
 SITE_FILES=(
-  index.html en/index.html styles.css main.js 404.html
+  index.html en/index.html styles.css main.js count.js 404.html
   og-image.png og-image-en.png favicon.ico favicon.svg apple-touch-icon.png icon-192.png icon-512.png
   site.webmanifest robots.txt sitemap.xml
   cv-david-ameline.pdf cv-apercu.webp

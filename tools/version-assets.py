@@ -11,7 +11,7 @@ import hashlib, re, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-ASSETS = ["styles.css", "main.js", "cv-david-ameline.pdf", "cv-apercu.webp", "og-image.png", "og-image-en.png"]
+ASSETS = ["styles.css", "main.js", "count.js", "cv-david-ameline.pdf", "cv-apercu.webp", "og-image.png", "og-image-en.png"]
 PAGES = ["index.html", "404.html"]  # en/index.html est régénérée depuis index.html (tools/build-en.py)
 
 

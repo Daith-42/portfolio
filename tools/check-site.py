@@ -11,7 +11,7 @@ sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 # Même liste que deploy/portfolio-sync.sh : ce sont les seuls fichiers publiés.
 SITE_FILES = [
-    "index.html", "en/index.html", "styles.css", "main.js", "404.html",
+    "index.html", "en/index.html", "styles.css", "main.js", "count.js", "404.html",
     "og-image.png", "og-image-en.png", "favicon.ico", "favicon.svg", "apple-touch-icon.png", "icon-192.png", "icon-512.png",
     "site.webmanifest", "robots.txt", "sitemap.xml",
     "cv-david-ameline.pdf", "cv-apercu.webp",
@@ -19,8 +19,11 @@ SITE_FILES = [
 ]
 # Pages indexées : (fichier, langue attendue)
 PAGES = [("index.html", "fr"), ("en/index.html", "en")]
-ASSETS = ["styles.css", "main.js", "cv-david-ameline.pdf", "cv-apercu.webp", "og-image.png", "og-image-en.png"]
+ASSETS = ["styles.css", "main.js", "count.js", "cv-david-ameline.pdf", "cv-apercu.webp", "og-image.png", "og-image-en.png"]
 errors = []
+NGINX_CONF = (ROOT / "deploy" / "nginx.conf").read_text(encoding="utf-8")
+CSP = re.search(r'Content-Security-Policy "([^"]+)"', NGINX_CONF)
+CSP = {d.split()[0]: d.split()[1:] for d in CSP.group(1).split(";") if d.strip()} if CSP else {}
 
 
 def check(ok, msg):
@@ -82,6 +85,14 @@ for page, lang in PAGES:
     for attrs in re.findall(r"<script([^>]*)>", html):
         check("application/ld+json" in attrs or "src=" in attrs, f"{page} : script inline interdit par la CSP, le mettre dans main.js")
     check(not re.search(r"\son[a-z]+=\"", html), f"{page} : attribut onclick/onload… interdit par la CSP")
+
+    # Compteur de visites : count.js après main.js (qui le règle), et son adresse autorisée par la CSP
+    gc = re.search(r'<script data-goatcounter="(https://[^/"]+)/count" src="/?count\.js[^"]*" defer></script>', html)
+    check(gc, f"{page} : balise du compteur de visites (count.js) absente ou modifiée")
+    if gc:
+        check(html.find("main.js") < html.find("count.js"), f"{page} : count.js doit être chargé après main.js")
+        for directive in ("connect-src", "img-src"):
+            check(gc.group(1) in CSP.get(directive, []), f"{page} : {gc.group(1)} absent de {directive} dans deploy/nginx.conf")
 
 # hreflang : chaque page annonce toutes les langues, et chaque langue pointe vers sa page canonique
 for page, (canon, lang, alts) in alternates.items():
